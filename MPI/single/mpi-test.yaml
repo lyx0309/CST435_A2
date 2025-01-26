@@ -1,0 +1,44 @@
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: mpi-test
+spec:
+  slotsPerWorker: 2
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: mpi-launcher
+            image: lyx0309/mpi-image:latest
+            command: ["/bin/bash", "-c", "mpiexec -n 4 python3 /mnt/input/mpi_avg_view.py"]
+            resources:
+              limits:
+                cpu: "1"
+                memory: "500Mi"
+            volumeMounts:
+            - name: mpi-input-volume
+              mountPath: /mnt/input
+          volumes:
+          - name: mpi-input-volume
+            persistentVolumeClaim:
+              claimName: mpi-test-pvc
+     Worker:
+      replicas: 2
+      template:
+        spec:
+          containers:
+          - name: mpi-worker
+            image: lyx0309/mpi-image:latest
+            resources:
+              limits:
+                cpu: "1"
+                memory: "1200Mi"
+            volumeMounts:
+            - name: mpi-input-volume
+              mountPath: /mnt/input
+          volumes:
+          - name: mpi-input-volume
+            persistentVolumeClaim:
+              claimName: mpi-test-pvc

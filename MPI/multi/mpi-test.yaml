@@ -1,0 +1,30 @@
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: mpi-test
+spec:
+  slotsPerWorker: 3
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: mpi-launcher
+            image: lyx0309/mpi-image:latest
+            command: ["/bin/bash", "-c", "mpiexec -n 6 python3 /home/mpiuser/mpi_avg_view.py"]
+            resources:
+              limits:
+                cpu: "1"
+                memory: "1Gi"
+     Worker:
+      replicas: 2
+      template:
+        spec:
+          containers:
+          - name: mpi-worker
+            image: lyx0309/mpi-image:latest
+            resources:
+              limits:
+                cpu: "3"
+                memory: "3Gi"
